@@ -1,6 +1,6 @@
 // noinspection JSIgnoredPromiseFromCall
 
-import React, {createRef, useEffect} from 'react';
+import React, {createRef, useCallback, useEffect, useState} from 'react';
 import './App.css';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
@@ -13,6 +13,7 @@ import {
     ThemeProvider
 } from "@mui/material";
 import {target} from "./config";
+import {useInterval, useLocalStorage} from "react-use";
 
 enum State {
     info = "info",
@@ -37,50 +38,26 @@ const theme = createTheme(
 type Hint = "复习中" | "学习中"
 
 function App() {
-    const [progress, setProgress] = React.useState(50);
-    const [state, setState] = React.useState(State.primary);
-    const [review, setReview] = React.useState(0);
-    const [reviewTarget, setReviewTarget] = React.useState(0);
-    const [learn, setLearn] = React.useState(0);
-    const [current, setCurrent] = React.useState(0);
-    const [hint, setHint] = React.useState<Hint>("复习中");
+    const [progress, setProgress] = useState(50);
+    const [progressColor, setProgressColor] = useState(State.primary);
+    const [review, setReview] = useState(0);
+    const [reviewTarget, setReviewTarget] = useState(0);
+    const [learn, setLearn] = useState(0);
+    const [current, setCurrent] = useState(0);
+    const [hint, setHint] = useState<Hint>("复习中");
 
-    const [open, setOpen] = React.useState(false);
-    const [open2, setOpen2] = React.useState(false);
-    const [open3, setOpen3] = React.useState(false);
+    const [userID, setUserID] = useLocalStorage<string>("userID");
 
-    const valueRef = createRef<any>()
-    const valueRef2 = createRef<any>()
+    const [userIDDialogFlag, setUserIDDialogFlag] = useState(false);
+    const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useState(false);
+    const [snackbarFlag, setSnackbarFlag] = useState(false);
 
-    const handleClose = () => {
-        const id: string = valueRef.current.value;
-        const reg = /[0-9]*/
-        if (reg.test(id)) {
-            localStorage.setItem("userID", id)
-        }
-        window.location.reload();
-    };
+    useInterval(() => {
+        update();
+    }, userID ? 5000 : null);
 
-    const handleClose2 = () => {
-        const target = Number(valueRef2.current.value);
-        if (isNaN(target) || target === 0) {
-            setOpen3(true)
-            return
-        }
-        setReviewTarget(target + review);
-        setOpen2(false);
-    };
-
-    const handleClose3 = () => {
-        setOpen3(false)
-    }
-
-    const handleSetReviewTarget = () => {
-        setOpen2(true);
-    }
-
-    useEffect(() => {
-        const update = async (userID: string) => {
+    const update = useCallback(() => {
+        const updateFn = async () => {
             try {
                 await fetch(`https://rproxy.learningman.top/bbdc/bb/dashboard/profile/search?userId=${userID}`)
                     .then(res => res.json())
@@ -96,22 +73,50 @@ function App() {
                 console.error(e)
             }
         }
+        updateFn();
+    }, [userID]);
 
-        const userID = localStorage.getItem("userID");
+    const userIDInput = createRef<any>()
+    const reviewTargetInput = createRef<any>()
 
-        if (userID) {
-            update(userID);
-            setInterval(() => {
-                update(userID!!)
-            }, 1000 * 5);
-        } else {
-            setOpen(true);
+    const userIDInputClose = () => {
+        const id: string = userIDInput.current.value;
+        const reg = /[0-9]*/
+        if (reg.test(id)) {
+            setUserID(id);
+            setUserIDDialogFlag(false);
         }
-    }, [])
+    };
+
+    const reviewTargetClose = () => {
+        const target = Number(reviewTargetInput.current.value);
+        if (isNaN(target) || target === 0) {
+            setSnackbarFlag(true)
+            return
+        }
+        setReviewTarget(target + review);
+        setReviewTargetDialogFlag(false);
+    };
+
+    const snackbarClose = () => {
+        setSnackbarFlag(false)
+    }
+
+    const handleSetReviewTarget = () => {
+        setReviewTargetDialogFlag(true);
+    }
+
+    useEffect(() => {
+        if (!userID) {
+            setUserIDDialogFlag(true);
+        } else {
+            update();
+        }
+    }, [update, userID])
 
     useEffect(() => {
         if (learn === 0) { // reviewing
-            setState(State.info)
+            setProgressColor(State.info)
             setHint("复习中")
             setCurrent(review)
             if (reviewTarget !== 0) {
@@ -123,9 +128,9 @@ function App() {
         } else {
             setHint("学习中")
             if (learn < target) {
-                setState(State.primary)
+                setProgressColor(State.primary)
             } else {
-                setState(State.success)
+                setProgressColor(State.success)
             }
             const progress = Math.min(100, learn / target * 100);
             setProgress(progress)
@@ -134,7 +139,7 @@ function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <Dialog open={open} onClose={handleClose}
+            <Dialog open={userIDDialogFlag} onClose={userIDInputClose}
             >
                 <DialogTitle>用户 ID 不可用</DialogTitle>
                 <DialogContent>
@@ -148,17 +153,17 @@ function App() {
                         autoFocus
                         margin="dense"
                         label="User ID"
-                        inputRef={valueRef}
+                        inputRef={userIDInput}
                         type="text"
                         fullWidth
                         variant="standard"
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>保存</Button>
+                    <Button onClick={userIDInputClose}>保存</Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={open2} onClose={handleSetReviewTarget}
+            <Dialog open={reviewTargetDialogFlag} onClose={handleSetReviewTarget}
             >
                 <DialogTitle>需复习单词数</DialogTitle>
                 <DialogContent>
@@ -171,7 +176,7 @@ function App() {
                     <TextField
                         autoFocus
                         margin="dense"
-                        inputRef={valueRef2}
+                        inputRef={reviewTargetInput}
                         type="text"
                         fullWidth
                         variant="standard"
@@ -179,16 +184,16 @@ function App() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => {
-                        setOpen2(false)
+                        setReviewTargetDialogFlag(false)
                     }}>取消</Button>
-                    <Button onClick={handleClose2}>保存</Button>
+                    <Button onClick={reviewTargetClose}>保存</Button>
                 </DialogActions>
             </Dialog>
             <Snackbar
-                open={open3}
+                open={snackbarFlag}
                 autoHideDuration={3000}
-                onClose={handleClose3}
-                message="复习目标不是有效的数字"
+                onClose={snackbarClose}
+                message="不是有效的数字"
             />
             <div className="App">
                 <div style={{
@@ -203,8 +208,9 @@ function App() {
                         }}>
                         <CircularProgress
                             variant="determinate"
+                            thickness={2.4}
                             value={progress}
-                            color={state}
+                            color={progressColor}
                             size={"20rem"}/>
                     </div>
                     <div
@@ -213,6 +219,7 @@ function App() {
                             zIndex: 0
                         }}>
                         <CircularProgress
+                            thickness={2.4}
                             variant="determinate"
                             value={100}
                             color={"bg"}
@@ -230,26 +237,26 @@ function App() {
                             {hint}
                         </h1>
                         {learn !== 0 ?
-                            <h1
+                            <h4
                                 style={{
                                     marginBottom: "8px",
                                     marginTop: "8px"
                                 }}>
                                 {current} / {target}
-                            </h1> : reviewTarget === 0 ? <h1
+                            </h4> : reviewTarget === 0 ? <Button
                                 style={{
-                                    marginBottom: "8px",
-                                    marginTop: "8px"
+                                    marginTop: "24px"
                                 }}
+                                variant="outlined"
                                 onClick={handleSetReviewTarget}>
-                                {current}
-                            </h1> : <h1
+                                设置复习目标
+                            </Button> : <h4
                                 style={{
                                     marginBottom: "8px",
                                     marginTop: "8px"
                                 }}>
                                 {current} / {reviewTarget}
-                            </h1>}
+                            </h4>}
                     </div>
                 </div>
             </div>
