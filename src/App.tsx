@@ -13,7 +13,7 @@ import {
     ThemeProvider
 } from "@mui/material";
 import {target} from "./config";
-import {useInterval, useLocalStorage} from "react-use";
+import {useInterval, useLocalStorage, useToggle} from "react-use";
 
 enum State {
     info = "info",
@@ -48,9 +48,9 @@ function App() {
 
     const [userID, setUserID] = useLocalStorage<string>("userID");
 
-    const [userIDDialogFlag, setUserIDDialogFlag] = useState(false);
-    const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useState(false);
-    const [snackbarFlag, setSnackbarFlag] = useState(false);
+    const [userIDDialogFlag, setUserIDDialogFlag] = useToggle(false);
+    const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useToggle(false);
+    const [snackbarFlag, setSnackbarFlag] = useToggle(false);
 
     useInterval(() => {
         update();
@@ -112,7 +112,7 @@ function App() {
         } else {
             update();
         }
-    }, [update, userID])
+    }, [update, userID, setUserIDDialogFlag])
 
     useEffect(() => {
         if (learn === 0) { // reviewing
