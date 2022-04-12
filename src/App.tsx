@@ -44,6 +44,7 @@ function App() {
     const [reviewTarget, setReviewTarget] = useState(0);
     const [learn, setLearn] = useState(0);
     const [current, setCurrent] = useState(0);
+    const [duration, setDuration] = useState(0);
     const [hint, setHint] = useState<Hint>("复习中");
 
     const [userID, setUserID] = useLocalStorage<string>("userID");
@@ -65,8 +66,12 @@ function App() {
                         const data = res["data_body"]["learnList"].filter((item: { [x: string]: string; }) => {
                             return item["date"] === "今日"
                         })[0];
+                        const duration = res["data_body"]["durationList"].filter((item: { [x: string]: string; }) => {
+                            return item["date"] === "今日"
+                        })[0]["duration"];
                         setLearn(data["learnNum"]);
                         setReview(data["reviewNum"]);
+                        setDuration(duration);
                     })
             } catch (e) {
                 console.error("Network Error")
@@ -81,7 +86,7 @@ function App() {
 
     const userIDInputClose = () => {
         const id: string = userIDInput.current.value;
-        const reg = /[0-9]*/
+        const reg = /\d*/
         if (reg.test(id)) {
             setUserID(id);
             setUserIDDialogFlag(false);
@@ -205,19 +210,19 @@ function App() {
                     <div
                         className={"middle"}
                         style={{
-                            zIndex: 1,
+                            zIndex: 0,
+                            opacity: 0.04,
+                            fontSize: "9em",
                         }}>
-                        <CircularProgress
-                            variant="determinate"
-                            thickness={2.4}
-                            value={progress}
-                            color={progressColor}
-                            size={"20rem"}/>
+                        <h1
+                            style={{
+                                margin: 0,
+                            }}>{duration}</h1>
                     </div>
                     <div
                         className={"middle"}
                         style={{
-                            zIndex: 0
+                            zIndex: 1
                         }}>
                         <CircularProgress
                             thickness={2.4}
@@ -230,6 +235,18 @@ function App() {
                         className={"middle"}
                         style={{
                             zIndex: 2,
+                        }}>
+                        <CircularProgress
+                            variant="determinate"
+                            thickness={2.4}
+                            value={progress}
+                            color={progressColor}
+                            size={"20rem"}/>
+                    </div>
+                    <div
+                        className={"middle"}
+                        style={{
+                            zIndex: 3,
                         }}>
                         <h1
                             style={{
