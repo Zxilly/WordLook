@@ -5,7 +5,7 @@ import './App.css';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
     Button,
-    createTheme,
+    createTheme, CssBaseline,
     Dialog, DialogActions,
     DialogContent,
     DialogContentText,
@@ -195,6 +195,7 @@ function App() {
                 onClose={snackbarClose}
                 message="不是有效的数字"
             />
+            <CssBaseline/>
             <div className="App">
                 <div style={{
                     position: "relative",
