@@ -53,6 +53,7 @@ function App() {
     const [userIDDialogFlag, setUserIDDialogFlag] = useToggle(false);
     const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useToggle(false);
     const [snackbarFlag, setSnackbarFlag] = useToggle(false);
+    const [initFlag, setInitFlag] = useToggle(false);
 
     useInterval(() => {
         update();
@@ -73,6 +74,7 @@ function App() {
                         setLearn(data["learnNum"]);
                         setReview(data["reviewNum"]);
                         setDuration(duration);
+                        setInitFlag(true);
                     })
             } catch (e) {
                 console.error("Network Error")
@@ -80,7 +82,7 @@ function App() {
             }
         }
         updateFn();
-    }, [userID]);
+    }, [setInitFlag, userID]);
 
     const userIDInput = createRef<any>()
     const reviewTargetInput = createRef<any>()
@@ -214,7 +216,10 @@ function App() {
                 message="不是有效的数字"
             />
             <CssBaseline/>
-            <div className="App">
+            <div className="App"
+                 style={{
+                     visibility: (initFlag && userID) ? "visible" : "hidden"
+                 }}>
                 <div style={{
                     position: "relative",
                     minHeight: "100vh",
