@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import {target} from "./config";
 import {useInterval, useLocalStorage, useToggle} from "react-use";
+import {getDate} from "./utils";
 
 enum State {
     info = "info",
@@ -41,13 +42,13 @@ function App() {
     const [progress, setProgress] = useState(50);
     const [progressColor, setProgressColor] = useState(State.primary);
     const [review, setReview] = useState(0);
-    const [reviewTarget, setReviewTarget] = useState(0);
     const [learn, setLearn] = useState(0);
     const [current, setCurrent] = useState(0);
     const [duration, setDuration] = useState(0);
     const [hint, setHint] = useState<Hint>("复习中");
 
     const [userID, setUserID] = useLocalStorage<string>("userID");
+    const [reviewTarget, setReviewTarget] = useLocalStorage<number>(`reviewTarget_${userID}_${getDate()}`);
 
     const [userIDDialogFlag, setUserIDDialogFlag] = useToggle(false);
     const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useToggle(false);
@@ -112,6 +113,18 @@ function App() {
     }
 
     useEffect(() => {
+        // clear localStorage
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("reviewTarget")) {
+                if (!key.endsWith(getDate())) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+        }
+    }, [])
+
+    useEffect(() => {
         if (!userID) {
             setUserIDDialogFlag(true);
         } else {
@@ -124,7 +137,7 @@ function App() {
             setProgressColor(State.info)
             setHint("复习中")
             setCurrent(review)
-            if (reviewTarget !== 0) {
+            if (reviewTarget && reviewTarget !== 0) {
                 const progress = review / reviewTarget * 100;
                 setProgress(progress)
             } else {
@@ -261,7 +274,7 @@ function App() {
                                     marginTop: "8px"
                                 }}>
                                 {current} / {target}
-                            </h4> : reviewTarget === 0 ? <Button
+                            </h4> : (!reviewTarget) ? <Button
                                 style={{
                                     marginTop: "24px"
                                 }}
