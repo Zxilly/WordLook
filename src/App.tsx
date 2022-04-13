@@ -230,7 +230,7 @@ function App() {
                         style={{
                             zIndex: 0,
                             opacity: 0.04,
-                            fontSize: "9em",
+                            fontSize: "min(6em, 20vw)",
                         }}>
                         <h1
                             style={{
