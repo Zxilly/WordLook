@@ -128,9 +128,11 @@ function App() {
         const app = document.getElementById("app");
         if (app) {
             new CanvasNest(app, {
-                count: 10,
-                opacity: 0.1
+                opacity: 0.3,
+                count: 50
             });
+        } else {
+            console.error("CanvasNest Error")
         }
     }, [])
 
