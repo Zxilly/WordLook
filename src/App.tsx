@@ -2,9 +2,9 @@
 
 import React, {createRef, useCallback, useEffect, useState} from 'react';
 import './App.css';
-import CircularProgress from '@mui/material/CircularProgress';
 import {
     Button,
+    CircularProgress,
     createTheme, CssBaseline,
     Dialog, DialogActions,
     DialogContent,
@@ -15,6 +15,7 @@ import {
 import {target} from "./config";
 import {useInterval, useLocalStorage, useToggle} from "react-use";
 import {getDate} from "./utils";
+import CanvasNest from 'canvas-nest.js';
 
 enum State {
     info = "info",
@@ -124,6 +125,13 @@ function App() {
                 }
             }
         }
+        const app = document.getElementById("app");
+        if (app) {
+            new CanvasNest(app, {
+                count: 10,
+                opacity: 0.1
+            });
+        }
     }, [])
 
     useEffect(() => {
@@ -135,7 +143,7 @@ function App() {
     }, [update, userID, setUserIDDialogFlag])
 
     useEffect(() => {
-        if (learn === 0 || (reviewTarget && (review >= reviewTarget))) { // reviewing
+        if (learn === 0 && (!reviewTarget || (reviewTarget && review <= reviewTarget))) { // reviewing
             setProgressColor(State.info)
             setHint("复习中")
             setCurrent(review)
@@ -218,6 +226,7 @@ function App() {
             />
             <CssBaseline/>
             <div className="App"
+                 id="app"
                  style={{
                      visibility: (initFlag && userID) ? "visible" : "hidden"
                  }}>

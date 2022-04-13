@@ -4484,6 +4484,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"canvas-nest.js@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "canvas-nest.js@npm:2.0.4"
+  dependencies:
+    size-sensor: ^0.2.0
+  checksum: 9328c12aa526fdebc06489da411755ffb2eb5592fa0e71c055e3040fdf9225c42522c1ff0ad9513715eeb890e3cea75570bce9669305c4a563e03e9487fe5ccc
+  languageName: node
+  linkType: hard
+
 "capture-exit@npm:^2.0.0":
   version: 2.0.0
   resolution: "capture-exit@npm:2.0.0"
@@ -12399,6 +12408,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"size-sensor@npm:^0.2.0":
+  version: 0.2.6
+  resolution: "size-sensor@npm:0.2.6"
+  checksum: d4f789b72f8e6c96f714a054a0f8002a8d2a0c95d997e2169d37c401fedb1cb6832b14529f996d4ebc97fd3237e2d6a122f969dba595d16a11281daee47cc0bc
+  languageName: node
+  linkType: hard
+
 "slash@npm:^3.0.0":
   version: 3.0.0
   resolution: "slash@npm:3.0.0"
@@ -14028,6 +14044,7 @@ __metadata:
     "@types/node": ^16.11.26
     "@types/react": ^17.0.43
     "@types/react-dom": ^17.0.14
+    canvas-nest.js: ^2.0.4
     craco-esbuild: ^0.5.0
     react: ^18.0.0
     react-dom: ^18.0.0
