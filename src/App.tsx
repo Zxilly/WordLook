@@ -135,7 +135,7 @@ function App() {
     }, [update, userID, setUserIDDialogFlag])
 
     useEffect(() => {
-        if (learn === 0) { // reviewing
+        if (learn === 0 || (reviewTarget && (review >= reviewTarget))) { // reviewing
             setProgressColor(State.info)
             setHint("复习中")
             setCurrent(review)
@@ -147,6 +147,7 @@ function App() {
             }
         } else {
             setHint("学习中")
+            setCurrent(learn)
             if (learn < target) {
                 setProgressColor(State.primary)
             } else {
