@@ -218,7 +218,7 @@ function App() {
                 message="不是有效的数字"
             />
             <CssBaseline/>
-            <ParticlesBg type="cobweb" bg={true} />
+            <ParticlesBg type="cobweb" color="#b3dbf1" bg={true} />
             <div className="App"
                  id="app"
                  style={{
