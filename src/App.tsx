@@ -136,7 +136,7 @@ function App() {
     }, [update, userID, setUserIDDialogFlag])
 
     useEffect(() => {
-        if (learn === 0 && (!reviewTarget || (reviewTarget && review <= reviewTarget))) { // reviewing
+        if (learn === 0 && (!reviewTarget || (reviewTarget && review < reviewTarget))) { // reviewing
             setProgressColor(State.info)
             setHint("复习中")
             setCurrent(review)
