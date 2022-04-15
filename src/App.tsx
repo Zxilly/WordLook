@@ -15,7 +15,7 @@ import {
 import {target} from "./config";
 import {useInterval, useLocalStorage, useToggle} from "react-use";
 import {getDate} from "./utils";
-import CanvasNest from 'canvas-nest.js';
+import ParticlesBg from 'particles-bg'
 
 enum State {
     info = "info",
@@ -125,15 +125,6 @@ function App() {
                 }
             }
         }
-        const app = document.getElementById("app");
-        if (app) {
-            new CanvasNest(app, {
-                opacity: 0.3,
-                count: 50
-            });
-        } else {
-            console.error("CanvasNest Error")
-        }
     }, [])
 
     useEffect(() => {
@@ -227,6 +218,7 @@ function App() {
                 message="不是有效的数字"
             />
             <CssBaseline/>
+            <ParticlesBg type="cobweb" bg={true} />
             <div className="App"
                  id="app"
                  style={{
