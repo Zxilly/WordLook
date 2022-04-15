@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import {target} from "./config";
 import {useInterval, useLocalStorage, useToggle} from "react-use";
-import {getDate} from "./utils";
+import {getDate, isReview} from "./utils";
 import ParticlesBg from 'particles-bg'
 
 enum State {
@@ -135,8 +135,9 @@ function App() {
         }
     }, [update, userID, setUserIDDialogFlag])
 
+
     useEffect(() => {
-        if (learn === 0 && (!reviewTarget || (reviewTarget && review < reviewTarget))) { // reviewing
+        if (isReview(learn, review, reviewTarget)) { // reviewing
             setProgressColor(State.info)
             setHint("复习中")
             setCurrent(review)
@@ -276,7 +277,7 @@ function App() {
                             }}>
                             {hint}
                         </h1>
-                        {learn !== 0 ?
+                        {!isReview(learn, review, reviewTarget) ?
                             <h4
                                 style={{
                                     marginBottom: "8px",
