@@ -220,87 +220,88 @@ function App() {
             />
             <CssBaseline/>
             <ParticlesBg type="cobweb" color="#b3dbf1" bg={true}/>
-            <div className="App"
-                 id="app"
-                 style={{
-                     visibility: (initFlag && userID) ? "visible" : "hidden"
-                 }}>
-                <div style={{
-                    position: "relative",
-                    minHeight: "100vh",
-                    minWidth: "100vw",
-                }}>
-                    <div
-                        className={"middle"}
-                        style={{
-                            zIndex: 0,
-                            opacity: 0.04,
-                            fontSize: "min(6em, 20vw)",
-                        }}>
-                        <h1
+            {!(initFlag && userID) ? <h1 className="App" style={{
+                    margin: 0,
+                }}>Loading...</h1> :
+                <div className="App"
+                     id="app"
+                >
+                    <div style={{
+                        position: "relative",
+                        minHeight: "100vh",
+                        minWidth: "100vw",
+                    }}>
+                        <div
+                            className={"middle"}
                             style={{
-                                margin: 0,
-                            }}>{duration}</h1>
-                    </div>
-                    <div
-                        className={"middle"}
-                        style={{
-                            zIndex: 1
-                        }}>
-                        <CircularProgress
-                            thickness={2.4}
-                            variant="determinate"
-                            value={100}
-                            color={"bg"}
-                            size={"20rem"}/>
-                    </div>
-                    <div
-                        className={"middle"}
-                        style={{
-                            zIndex: 2,
-                        }}>
-                        <CircularProgress
-                            variant="determinate"
-                            thickness={2.4}
-                            value={progress}
-                            color={progressColor}
-                            size={"20rem"}/>
-                    </div>
-                    <div
-                        className={"middle"}
-                        style={{
-                            zIndex: 3,
-                        }}>
-                        <h1
-                            style={{
-                                margin: 0,
+                                zIndex: 0,
+                                opacity: 0.04,
+                                fontSize: "min(6em, 20vw)",
                             }}>
-                            {hint}
-                        </h1>
-                        {!isReview(learn, review, reviewTarget) ?
-                            <h4
+                            <h1
                                 style={{
-                                    marginBottom: "8px",
-                                    marginTop: "8px"
+                                    margin: 0,
+                                }}>{duration}</h1>
+                        </div>
+                        <div
+                            className={"middle"}
+                            style={{
+                                zIndex: 1
+                            }}>
+                            <CircularProgress
+                                thickness={2.4}
+                                variant="determinate"
+                                value={100}
+                                color={"bg"}
+                                size={"20rem"}/>
+                        </div>
+                        <div
+                            className={"middle"}
+                            style={{
+                                zIndex: 2,
+                            }}>
+                            <CircularProgress
+                                variant="determinate"
+                                thickness={2.4}
+                                value={progress}
+                                color={progressColor}
+                                size={"20rem"}/>
+                        </div>
+                        <div
+                            className={"middle"}
+                            style={{
+                                zIndex: 3,
+                            }}>
+                            <h1
+                                style={{
+                                    margin: 0,
                                 }}>
-                                {current} / {target}
-                            </h4> : (!reviewTarget) ? <Button
-                                style={{
-                                    marginTop: "24px"
-                                }}
-                                variant="outlined"
-                                onClick={handleSetReviewTarget}>
-                                设置复习目标
-                            </Button> : <h4
-                                style={{
-                                    marginBottom: "8px",
-                                    marginTop: "8px"
-                                }}>
-                                {current} / {reviewTarget}
-                            </h4>}
+                                {hint}
+                            </h1>
+                            {!isReview(learn, review, reviewTarget) ?
+                                <h4
+                                    style={{
+                                        marginBottom: "8px",
+                                        marginTop: "8px"
+                                    }}>
+                                    {current} / {target}
+                                </h4> : (!reviewTarget) ? <Button
+                                    style={{
+                                        marginTop: "24px"
+                                    }}
+                                    variant="outlined"
+                                    onClick={handleSetReviewTarget}>
+                                    设置复习目标
+                                </Button> : <h4
+                                    style={{
+                                        marginBottom: "8px",
+                                        marginTop: "8px"
+                                    }}>
+                                    {current} / {reviewTarget}
+                                </h4>}
+                        </div>
                     </div>
-                </div>
-            </div>
+                </div>}
         </ThemeProvider>
     )
 }
