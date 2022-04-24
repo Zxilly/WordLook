@@ -12,7 +12,7 @@ import {
     DialogTitle, Snackbar, TextField,
     ThemeProvider
 } from "@mui/material";
-import {target} from "./config";
+import {target, Token} from "./config";
 import {useInterval, useLocalStorage, useToggle} from "react-use";
 import {getDate, isReview} from "./utils";
 import ParticlesBg from 'particles-bg'
@@ -56,11 +56,60 @@ function App() {
     const [snackbarFlag, setSnackbarFlag] = useToggle(false);
     const [initFlag, setInitFlag] = useToggle(false);
 
+    const userIDInput = createRef<any>()
+    const reviewTargetInput = createRef<any>()
+
     useInterval(() => {
-        update();
+        learnUpdate();
     }, userID ? 5000 : null);
 
-    const update = useCallback(() => {
+    const reviewTargetFetch = useCallback(() => {
+        const updateFn = async () => {
+            const resp = await fetch(`https://unsafekv.zxilly.workers.dev/reviewTarget_${userID}_${getDate()}`, {
+                method: "GET",
+                headers: {
+                    "Token": Token
+                }
+            })
+            if (resp.status === 404) {
+                return
+            } else {
+                const rt = await resp.json()
+                setReviewTarget(rt)
+            }
+        }
+        updateFn();
+    }, [setReviewTarget, userID]);
+
+    const reviewTargetPut = useCallback(() => {
+        const fn = async () => {
+            const expire = Math.floor(new Date().setHours(23, 59, 59, 999) / 1000);
+            const url = new URL(`https://unsafekv.zxilly.workers.dev/reviewTarget_${userID}_${getDate()}`)
+            url.searchParams.append("expiration", expire.toString());
+
+            await fetch(url.toString(), {
+                method: "PUT",
+                headers: {
+                    "Token": Token
+                },
+                body: JSON.stringify(reviewTarget)
+            });
+        }
+        fn();
+    }, [reviewTarget, userID]);
+
+    const cacheClear = useCallback(() => {
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("reviewTarget")) {
+                if (!key.endsWith(getDate())) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+        }
+    }, []);
+
+    const learnUpdate = useCallback(() => {
         const updateFn = async () => {
             try {
                 await fetch(`https://rproxy.learningman.top/bbdc/bb/dashboard/profile/search?userId=${userID}`)
@@ -85,9 +134,6 @@ function App() {
         updateFn();
     }, [setInitFlag, userID]);
 
-    const userIDInput = createRef<any>()
-    const reviewTargetInput = createRef<any>()
-
     const userIDInputClose = () => {
         const id: string = userIDInput.current.value;
         const reg = /\d*/
@@ -103,8 +149,9 @@ function App() {
             setSnackbarFlag(true)
             return
         }
-        setReviewTarget(target + review);
+        setReviewTarget(() => target + review);
         setReviewTargetDialogFlag(false);
+        reviewTargetPut()
     };
 
     const snackbarClose = () => {
@@ -116,24 +163,16 @@ function App() {
     }
 
     useEffect(() => {
-        // clear localStorage
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith("reviewTarget")) {
-                if (!key.endsWith(getDate())) {
-                    window.localStorage.removeItem(key);
-                }
-            }
-        }
-    }, [])
-
-    useEffect(() => {
         if (!userID) {
             setUserIDDialogFlag(true);
         } else {
-            update();
+            cacheClear();
+            learnUpdate();
+            if (!reviewTarget) {
+                reviewTargetFetch();
+            }
         }
-    }, [update, userID, setUserIDDialogFlag])
+    }, [learnUpdate, reviewTargetFetch, userID, setUserIDDialogFlag, reviewTarget, cacheClear])
 
 
     useEffect(() => {
