@@ -12,7 +12,7 @@ import {
     DialogTitle, Snackbar, TextField,
     ThemeProvider
 } from "@mui/material";
-import {target, Token} from "./config";
+import {BBDC_ENDPOINT, KV_ENDPOINT, TARGET, TOKEN} from "./config";
 import {useInterval, useLocalStorage, useToggle} from "react-use";
 import {getDate, isReview} from "./utils";
 import ParticlesBg from 'particles-bg'
@@ -50,6 +50,7 @@ function App() {
 
     const [userID, setUserID] = useLocalStorage<string>("userID");
     const [reviewTarget, setReviewTarget] = useLocalStorage<number>(`reviewTarget_${userID}_${getDate()}`);
+    const [remoteCache, setRemoteCache] = useState(true);
 
     const [userIDDialogFlag, setUserIDDialogFlag] = useToggle(false);
     const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useToggle(false);
@@ -64,11 +65,12 @@ function App() {
     }, userID ? 5000 : null);
 
     const reviewTargetFetch = useCallback(() => {
+        setRemoteCache(false);
         const updateFn = async () => {
-            const resp = await fetch(`https://unsafekv.zxilly.workers.dev/reviewTarget_${userID}_${getDate()}`, {
+            const resp = await fetch(`${KV_ENDPOINT}/reviewTarget_${userID}_${getDate()}`, {
                 method: "GET",
                 headers: {
-                    "Token": Token
+                    "Token": TOKEN
                 }
             })
             if (resp.status === 404) {
@@ -77,26 +79,10 @@ function App() {
                 const rt = await resp.json()
                 setReviewTarget(rt)
             }
+            setRemoteCache(true);
         }
         updateFn();
     }, [setReviewTarget, userID]);
-
-    const reviewTargetPut = useCallback(() => {
-        const fn = async () => {
-            const expire = Math.floor(new Date().setHours(23, 59, 59, 999) / 1000);
-            const url = new URL(`https://unsafekv.zxilly.workers.dev/reviewTarget_${userID}_${getDate()}`)
-            url.searchParams.append("expiration", expire.toString());
-
-            await fetch(url.toString(), {
-                method: "PUT",
-                headers: {
-                    "Token": Token
-                },
-                body: JSON.stringify(reviewTarget)
-            });
-        }
-        fn();
-    }, [reviewTarget, userID]);
 
     const cacheClear = useCallback(() => {
         for (let i = 0; i < localStorage.length; i++) {
@@ -112,7 +98,7 @@ function App() {
     const learnUpdate = useCallback(() => {
         const updateFn = async () => {
             try {
-                await fetch(`https://rproxy.learningman.top/bbdc/bb/dashboard/profile/search?userId=${userID}`)
+                await fetch(`${BBDC_ENDPOINT}/bb/dashboard/profile/search?userId=${userID}`)
                     .then(res => res.json())
                     .then(res => {
                         const data = res["data_body"]["learnList"].filter((item: { [x: string]: string; }) => {
@@ -149,9 +135,23 @@ function App() {
             setSnackbarFlag(true)
             return
         }
-        setReviewTarget(() => target + review);
+        setReviewTarget(target + review);
         setReviewTargetDialogFlag(false);
-        reviewTargetPut()
+
+        const fn = async () => {
+            const expire = Math.floor(new Date().setHours(23, 59, 59, 999) / 1000);
+            const url = new URL(`${KV_ENDPOINT}/reviewTarget_${userID}_${getDate()}`)
+            url.searchParams.append("expiration", expire.toString());
+            console.log(reviewTarget)
+            await fetch(url.toString(), {
+                method: "PUT",
+                headers: {
+                    "Token": TOKEN
+                },
+                body: JSON.stringify(target + review)
+            });
+        }
+        fn();
     };
 
     const snackbarClose = () => {
@@ -189,12 +189,12 @@ function App() {
         } else {
             setHint("学习中")
             setCurrent(learn)
-            if (learn < target) {
+            if (learn < TARGET) {
                 setProgressColor(State.primary)
             } else {
                 setProgressColor(State.success)
             }
-            const progress = Math.min(100, learn / target * 100);
+            const progress = Math.min(100, learn / TARGET * 100);
             setProgress(progress)
         }
     }, [learn, review, reviewTarget])
@@ -323,8 +323,14 @@ function App() {
                                         marginBottom: "8px",
                                         marginTop: "8px"
                                     }}>
-                                    {current} / {target}
-                                </h4> : (!reviewTarget) ? <Button
+                                    {current} / {TARGET}
+                                </h4> : (!remoteCache) ? <h4
+                                    style={{
+                                        marginBottom: "8px",
+                                        marginTop: "8px"
+                                    }}>
+                                    Loading...
+                                </h4> : ((!reviewTarget) ? <Button
                                     style={{
                                         marginTop: "24px"
                                     }}
@@ -337,7 +343,7 @@ function App() {
                                         marginTop: "8px"
                                     }}>
                                     {current} / {reviewTarget}
-                                </h4>}
+                                </h4>)}
                         </div>
                     </div>
                 </div>}
