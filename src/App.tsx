@@ -142,7 +142,6 @@ function App() {
             const expire = Math.floor(new Date().setHours(23, 59, 59, 999) / 1000);
             const url = new URL(`${KV_ENDPOINT}/reviewTarget_${userID}_${getDate()}`)
             url.searchParams.append("expiration", expire.toString());
-            console.log(reviewTarget)
             await fetch(url.toString(), {
                 method: "PUT",
                 headers: {
@@ -168,6 +167,8 @@ function App() {
         } else {
             cacheClear();
             learnUpdate();
+            console.log("update")
+            console.log(reviewTarget)
             if (!reviewTarget) {
                 reviewTargetFetch();
             }
