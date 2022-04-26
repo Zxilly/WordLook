@@ -67,7 +67,7 @@ function App() {
     const reviewTargetFetch = useCallback(() => {
         setRemoteCache(false);
         const updateFn = async () => {
-            const resp = await fetch(`${KV_ENDPOINT}/reviewTarget_${userID}}`, {
+            const resp = await fetch(`${KV_ENDPOINT}/reviewTarget_${userID}`, {
                 method: "GET",
                 headers: {
                     "Token": TOKEN
