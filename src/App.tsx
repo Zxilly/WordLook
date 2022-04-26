@@ -67,15 +67,13 @@ function App() {
     const reviewTargetFetch = useCallback(() => {
         setRemoteCache(false);
         const updateFn = async () => {
-            const resp = await fetch(`${KV_ENDPOINT}/reviewTarget_${userID}_${getDate()}`, {
+            const resp = await fetch(`${KV_ENDPOINT}/reviewTarget_${userID}}`, {
                 method: "GET",
                 headers: {
                     "Token": TOKEN
                 }
             })
-            if (resp.status === 404) {
-                return
-            } else {
+            if (resp.status !== 404) {
                 const rt = await resp.json()
                 setReviewTarget(rt)
             }
@@ -140,7 +138,7 @@ function App() {
 
         const fn = async () => {
             const expire = Math.floor(new Date().setHours(23, 59, 59, 999) / 1000);
-            const url = new URL(`${KV_ENDPOINT}/reviewTarget_${userID}_${getDate()}`)
+            const url = new URL(`${KV_ENDPOINT}/reviewTarget_${userID}`)
             url.searchParams.append("expiration", expire.toString());
             await fetch(url.toString(), {
                 method: "PUT",
@@ -328,7 +326,9 @@ function App() {
                                 </h4> : (!remoteCache) ? <h4
                                     style={{
                                         marginBottom: "8px",
-                                        marginTop: "8px"
+                                        marginTop: "8px",
+                                        fontStyle: "initial",
+                                        fontWeight: "initial",
                                     }}>
                                     Loading...
                                 </h4> : ((!reviewTarget) ? <Button
