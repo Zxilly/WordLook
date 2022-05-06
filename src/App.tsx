@@ -111,7 +111,6 @@ function App() {
                         setInitFlag(true);
                     })
             } catch (e) {
-                console.error("Network Error")
                 console.error(e)
             }
         }
@@ -165,8 +164,6 @@ function App() {
         } else {
             cacheClear();
             learnUpdate();
-            console.log("update")
-            console.log(reviewTarget)
             if (!reviewTarget) {
                 reviewTargetFetch();
             }
