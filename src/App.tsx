@@ -162,17 +162,23 @@ function App() {
             if ('wakeLock' in navigator) {
                 navigator.wakeLock.request('screen').then(lock => {
                     setWakeLock(lock);
+                    console.log('Screen WakeLock acquired');
                 });
             } else {
                 console.warn("WakeLock API not supported.");
             }
         };
-        requestLock();
-        document.addEventListener('visibilitychange', async () => {
+        const cb = async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 requestLock();
+                document.removeEventListener('visibilitychange', cb);
             }
-        });
+        };
+        if (document.visibilityState !== 'visible') {
+            document.addEventListener('visibilitychange', cb);
+        } else {
+            requestLock();
+        }
     }, [wakeLock]);
 
     useEffect(() => {
