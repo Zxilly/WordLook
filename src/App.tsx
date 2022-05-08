@@ -1,6 +1,6 @@
 // noinspection JSIgnoredPromiseFromCall
 
-import React, {createRef, useCallback, useEffect, useState} from 'react';
+import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
 import './App.css';
 import {
     Button,
@@ -60,7 +60,7 @@ function App() {
     const userIDInput = createRef<any>();
     const reviewTargetInput = createRef<any>();
 
-    const [wakeLock, setWakeLock] = useState<WakeLockSentinel | null>(null);
+    const wakeLock = useRef<WakeLockSentinel>();
 
     useInterval(() => {
         learnUpdate();
@@ -161,7 +161,7 @@ function App() {
         const requestLock = () => {
             if ('wakeLock' in navigator) {
                 navigator.wakeLock.request('screen').then(lock => {
-                    setWakeLock(lock);
+                    wakeLock.current = lock;
                     console.log('Screen WakeLock acquired');
                 });
             } else {
@@ -169,17 +169,18 @@ function App() {
             }
         };
         const cb = async () => {
-            if (wakeLock === null && document.visibilityState === 'visible') {
+            if (wakeLock.current === null && document.visibilityState === 'visible') {
                 requestLock();
                 document.removeEventListener('visibilitychange', cb);
             }
         };
         if (document.visibilityState !== 'visible') {
+            console.log("Page not visible, waiting for visibilitychange event...");
             document.addEventListener('visibilitychange', cb);
         } else {
             requestLock();
         }
-    }, [wakeLock]);
+    }, []);
 
     useEffect(() => {
         if (!userID) {
