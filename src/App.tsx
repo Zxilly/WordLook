@@ -169,7 +169,7 @@ function App() {
             }
         };
         const cb = async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
+            if (wakeLock === null && document.visibilityState === 'visible') {
                 requestLock();
                 document.removeEventListener('visibilitychange', cb);
             }
