@@ -5,11 +5,15 @@ import './App.css';
 import {
     Button,
     CircularProgress,
-    createTheme, CssBaseline,
-    Dialog, DialogActions,
+    createTheme,
+    CssBaseline,
+    Dialog,
+    DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle, Snackbar, TextField,
+    DialogTitle,
+    Snackbar,
+    TextField,
     ThemeProvider
 } from "@mui/material";
 import {BBDC_ENDPOINT, KV_ENDPOINT, TARGET, TOKEN} from "./config";
@@ -56,6 +60,7 @@ function App() {
     const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useToggle(false);
     const [snackbarFlag, setSnackbarFlag] = useToggle(false);
     const [initFlag, setInitFlag] = useToggle(false);
+    const [running, setRunning] = useToggle(userID === undefined);
 
     const userIDInput = createRef<any>();
     const reviewTargetInput = createRef<any>();
@@ -64,7 +69,7 @@ function App() {
 
     useInterval(() => {
         learnUpdate();
-    }, userID ? 5000 : null);
+    }, running ? 5000 : null);
 
     const reviewTargetFetch = useCallback(() => {
         setRemoteCache(false);
@@ -158,29 +163,36 @@ function App() {
     };
 
     useEffect(() => {
-        const requestLock = () => {
+        const requestLock = async () => {
             if ('wakeLock' in navigator) {
-                navigator.wakeLock.request('screen').then(lock => {
-                    wakeLock.current = lock;
-                    console.log('Screen WakeLock acquired');
-                });
+                wakeLock.current = await navigator.wakeLock.request('screen');
             } else {
                 console.warn("WakeLock API not supported.");
             }
         };
-        const cb = async () => {
-            if (wakeLock.current === null && document.visibilityState === 'visible') {
-                requestLock();
-                document.removeEventListener('visibilitychange', cb);
-            }
-        };
-        if (document.visibilityState !== 'visible') {
-            console.log("Page not visible, waiting for visibilitychange event...");
-            document.addEventListener('visibilitychange', cb);
-        } else {
+
+        if (document.visibilityState === 'visible') {
             requestLock();
         }
-    }, []);
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === 'visible') {
+                requestLock();
+            } else {
+                if (wakeLock.current) {
+                    wakeLock.current.release();
+                }
+            }
+        });
+
+        document.addEventListener("visibilitychange", function () {
+            if (document.visibilityState === 'visible') {
+                setRunning(true);
+            } else {
+                setRunning(false);
+            }
+        });
+    }, [setRunning]);
 
     useEffect(() => {
         if (!userID) {
