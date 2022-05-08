@@ -15,7 +15,7 @@ import {
 import {BBDC_ENDPOINT, KV_ENDPOINT, TARGET, TOKEN} from "./config";
 import {useInterval, useLocalStorage, useToggle} from "react-use";
 import {getDate, isReview} from "./utils";
-import ParticlesBg from 'particles-bg'
+import ParticlesBg from 'particles-bg';
 
 enum State {
     info = "info",
@@ -57,8 +57,10 @@ function App() {
     const [snackbarFlag, setSnackbarFlag] = useToggle(false);
     const [initFlag, setInitFlag] = useToggle(false);
 
-    const userIDInput = createRef<any>()
-    const reviewTargetInput = createRef<any>()
+    const userIDInput = createRef<any>();
+    const reviewTargetInput = createRef<any>();
+
+    const [wakeLock, setWakeLock] = useState<WakeLockSentinel | null>(null);
 
     useInterval(() => {
         learnUpdate();
@@ -72,13 +74,13 @@ function App() {
                 headers: {
                     "Token": TOKEN
                 }
-            })
+            });
             if (resp.status !== 404) {
-                const rt = await resp.json()
-                setReviewTarget(rt)
+                const rt = await resp.json();
+                setReviewTarget(rt);
             }
             setRemoteCache(true);
-        }
+        };
         updateFn();
     }, [setReviewTarget, userID]);
 
@@ -95,31 +97,27 @@ function App() {
 
     const learnUpdate = useCallback(() => {
         const updateFn = async () => {
-            try {
-                await fetch(`${BBDC_ENDPOINT}/bb/dashboard/profile/search?userId=${userID}`)
-                    .then(res => res.json())
-                    .then(res => {
-                        const data = res["data_body"]["learnList"].filter((item: { [x: string]: string; }) => {
-                            return item["date"] === "今日"
-                        })[0];
-                        const duration = res["data_body"]["durationList"].filter((item: { [x: string]: string; }) => {
-                            return item["date"] === "今日"
-                        })[0]["duration"];
-                        setLearn(data["learnNum"]);
-                        setReview(data["reviewNum"]);
-                        setDuration(duration);
-                        setInitFlag(true);
-                    })
-            } catch (e) {
-                console.error(e)
-            }
-        }
+            await fetch(`${BBDC_ENDPOINT}/bb/dashboard/profile/search?userId=${userID}`)
+                .then(res => res.json())
+                .then(res => {
+                    const data = res["data_body"]["learnList"].filter((item: { [x: string]: string; }) => {
+                        return item["date"] === "今日";
+                    })[0];
+                    const duration = res["data_body"]["durationList"].filter((item: { [x: string]: string; }) => {
+                        return item["date"] === "今日";
+                    })[0]["duration"];
+                    setLearn(data["learnNum"]);
+                    setReview(data["reviewNum"]);
+                    setDuration(duration);
+                    setInitFlag(true);
+                });
+        };
         updateFn();
     }, [setInitFlag, userID]);
 
     const userIDInputClose = () => {
         const id: string = userIDInput.current.value;
-        const reg = /\d*/
+        const reg = /\d*/;
         if (reg.test(id)) {
             setUserID(id);
             setUserIDDialogFlag(false);
@@ -129,15 +127,15 @@ function App() {
     const reviewTargetClose = () => {
         const target = Number(reviewTargetInput.current.value);
         if (isNaN(target) || target === 0) {
-            setSnackbarFlag(true)
-            return
+            setSnackbarFlag(true);
+            return;
         }
         setReviewTarget(target + review);
         setReviewTargetDialogFlag(false);
 
         const fn = async () => {
             const expire = Math.floor(new Date().setHours(23, 59, 59, 999) / 1000);
-            const url = new URL(`${KV_ENDPOINT}/reviewTarget_${userID}`)
+            const url = new URL(`${KV_ENDPOINT}/reviewTarget_${userID}`);
             url.searchParams.append("expiration", expire.toString());
             await fetch(url.toString(), {
                 method: "PUT",
@@ -146,18 +144,34 @@ function App() {
                 },
                 body: JSON.stringify(target + review)
             });
-        }
+        };
         fn();
     };
 
     const snackbarClose = () => {
-        setSnackbarFlag(false)
-    }
+        setSnackbarFlag(false);
+    };
 
     const handleSetReviewTarget = () => {
         learnUpdate();
         setReviewTargetDialogFlag(true);
-    }
+    };
+
+    useEffect(() => {
+        const requestLock = () => {
+            if ('wakeLock' in navigator) {
+                navigator.wakeLock.request('screen').then(lock => {
+                    setWakeLock(lock);
+                });
+            }
+        };
+        requestLock();
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                requestLock();
+            }
+        });
+    }, [wakeLock]);
 
     useEffect(() => {
         if (!userID) {
@@ -169,32 +183,32 @@ function App() {
                 reviewTargetFetch();
             }
         }
-    }, [learnUpdate, reviewTargetFetch, userID, setUserIDDialogFlag, reviewTarget, cacheClear])
+    }, [learnUpdate, reviewTargetFetch, userID, setUserIDDialogFlag, reviewTarget, cacheClear]);
 
 
     useEffect(() => {
         if (isReview(learn, review, reviewTarget)) { // reviewing
-            setProgressColor(State.info)
-            setHint("复习中")
-            setCurrent(review)
+            setProgressColor(State.info);
+            setHint("复习中");
+            setCurrent(review);
             if (reviewTarget && reviewTarget !== 0) {
                 const progress = review / reviewTarget * 100;
-                setProgress(progress)
+                setProgress(progress);
             } else {
-                setProgress(100)
+                setProgress(100);
             }
         } else {
-            setHint("学习中")
-            setCurrent(learn)
+            setHint("学习中");
+            setCurrent(learn);
             if (learn < TARGET) {
-                setProgressColor(State.primary)
+                setProgressColor(State.primary);
             } else {
-                setProgressColor(State.success)
+                setProgressColor(State.success);
             }
             const progress = Math.min(100, learn / TARGET * 100);
-            setProgress(progress)
+            setProgress(progress);
         }
-    }, [learn, review, reviewTarget])
+    }, [learn, review, reviewTarget]);
 
     return (
         <ThemeProvider theme={theme}>
@@ -244,7 +258,7 @@ function App() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => {
-                        setReviewTargetDialogFlag(false)
+                        setReviewTargetDialogFlag(false);
                     }}>取消</Button>
                     <Button onClick={reviewTargetClose}>保存</Button>
                 </DialogActions>
@@ -348,7 +362,7 @@ function App() {
                     </div>
                 </div>}
         </ThemeProvider>
-    )
+    );
 }
 
 export default App;
