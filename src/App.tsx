@@ -163,6 +163,8 @@ function App() {
                 navigator.wakeLock.request('screen').then(lock => {
                     setWakeLock(lock);
                 });
+            } else {
+                console.warn("WakeLock API not supported.");
             }
         };
         requestLock();
