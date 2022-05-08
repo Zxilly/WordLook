@@ -155,6 +155,7 @@ function App() {
     }
 
     const handleSetReviewTarget = () => {
+        learnUpdate();
         setReviewTargetDialogFlag(true);
     }
 
@@ -221,7 +222,8 @@ function App() {
                     <Button onClick={userIDInputClose}>保存</Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={reviewTargetDialogFlag} onClose={handleSetReviewTarget}
+            <Dialog open={reviewTargetDialogFlag}
+                    onClose={handleSetReviewTarget}
             >
                 <DialogTitle>需复习单词数</DialogTitle>
                 <DialogContent>
