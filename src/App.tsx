@@ -163,28 +163,30 @@ function App() {
     };
 
     useEffect(() => {
+        if (!('wakeLock' in navigator)) {
+            console.warn("WakeLock API not supported.");
+            return;
+        }
         const requestLock = async () => {
-            if ('wakeLock' in navigator) {
-                wakeLock.current = await navigator.wakeLock.request('screen');
-            } else {
-                console.warn("WakeLock API not supported.");
-            }
+            wakeLock.current = await navigator.wakeLock.request('screen');
         };
 
         if (document.visibilityState === 'visible') {
             requestLock();
         }
 
-        document.addEventListener("visibilitychange", function () {
+        document.addEventListener("visibilitychange", async function () {
             if (document.visibilityState === 'visible') {
-                requestLock();
+                await requestLock();
             } else {
                 if (wakeLock.current) {
-                    wakeLock.current.release();
+                    await wakeLock.current.release();
                 }
             }
         });
+    }, []);
 
+    useEffect(() => {
         document.addEventListener("visibilitychange", function () {
             if (document.visibilityState === 'visible') {
                 setRunning(true);
