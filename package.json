@@ -21,7 +21,8 @@
     "react-dom": "^18.1.0",
     "react-scripts": "^5.0.1",
     "react-use": "^17.3.2",
-    "typescript": "^4.6.4"
+    "typescript": "^4.6.4",
+    "webpack-bundle-analyzer": "^4.5.0"
   },
   "scripts": {
     "start": "craco --openssl-legacy-provider start",
