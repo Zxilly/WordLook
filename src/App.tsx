@@ -173,12 +173,12 @@ function App() {
             wakeLock.current = await navigator.wakeLock.request('screen');
         };
 
-        if (document.visibilityState === 'visible') {
+        if (!document.hidden) {
             requestLock();
         }
 
         document.addEventListener("visibilitychange", async function () {
-            if (document.visibilityState === 'visible') {
+            if (!document.hidden) {
                 await requestLock();
             } else {
                 if (wakeLock.current) {
@@ -189,8 +189,8 @@ function App() {
     }, []);
 
     useEffect(() => {
-        document.addEventListener("visibilitychange", function () {
-            if (document.visibilityState === 'visible') {
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
                 setRunning(true);
             } else {
                 setRunning(false);
