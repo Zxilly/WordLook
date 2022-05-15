@@ -27,6 +27,8 @@ enum State {
     primary = "primary",
 }
 
+type strDict = { [key: string]: string };
+
 const {palette} = createTheme();
 const theme = createTheme(
     {
@@ -105,10 +107,10 @@ function App() {
             await fetch(`${BBDC_ENDPOINT}/bb/dashboard/profile/search?userId=${userID}`)
                 .then(res => res.json())
                 .then(res => {
-                    const data = res["data_body"]["learnList"].filter((item: { [x: string]: string; }) => {
+                    const data = res["data_body"]["learnList"].filter((item: strDict) => {
                         return item["date"] === "今日";
                     })[0];
-                    const duration = res["data_body"]["durationList"].filter((item: { [x: string]: string; }) => {
+                    const duration = res["data_body"]["durationList"].filter((item: strDict) => {
                         return item["date"] === "今日";
                     })[0]["duration"];
                     setLearn(data["learnNum"]);
