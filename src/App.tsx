@@ -62,7 +62,7 @@ function App() {
     const [reviewTargetDialogFlag, setReviewTargetDialogFlag] = useToggle(false);
     const [snackbarFlag, setSnackbarFlag] = useToggle(false);
     const [initFlag, setInitFlag] = useToggle(false);
-    const [running, setRunning] = useToggle(userID === undefined);
+    const [running, setRunning] = useToggle(userID !== undefined);
 
     const userIDInput = createRef<any>();
     const reviewTargetInput = createRef<any>();
@@ -173,30 +173,28 @@ function App() {
             wakeLock.current = await navigator.wakeLock.request('screen');
         };
 
-        if (!document.hidden) {
+        if (document.visibilityState === "visible") {
             requestLock();
         }
 
         document.addEventListener("visibilitychange", async function () {
-            if (!document.hidden) {
+            if (document.visibilityState === "visible") {
                 await requestLock();
-            } else {
-                if (wakeLock.current) {
-                    await wakeLock.current.release();
-                }
+            } else if (document.visibilityState === "hidden" && wakeLock.current) {
+                await wakeLock.current.release();
             }
         });
     }, []);
 
     useEffect(() => {
         document.addEventListener("visibilitychange", () => {
-            if (!document.hidden) {
-                setRunning(true);
-            } else {
+            if (document.visibilityState === "visible") {
+                setRunning(userID !== undefined);
+            } else if (document.visibilityState === "hidden") {
                 setRunning(false);
             }
         });
-    }, [setRunning]);
+    }, [setRunning, userID]);
 
     useEffect(() => {
         if (!userID) {
