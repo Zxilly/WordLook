@@ -189,9 +189,9 @@ function App() {
     useEffect(() => {
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") {
-                setRunning(userID !== undefined);
+                setRunning(() => userID !== undefined);
             } else if (document.visibilityState === "hidden") {
-                setRunning(false);
+                setRunning(() => false);
             }
         });
     }, [setRunning, userID]);
