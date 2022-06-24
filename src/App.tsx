@@ -300,8 +300,19 @@ function App() {
                 <div className="App"
                      id="app"
                 >
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: "20px",
+                            right: "20px",
+                            width: "20px",
+                            height: "20px",
+                            borderRadius: "10px",
+                            backgroundColor: running ? "#0288d1" : "#808080",
+                            opacity: 0.5,
+                        }}/>
                     <div style={{
-                        position: "relative",
+                        position: "absolute",
                         minHeight: "100vh",
                         minWidth: "100vw",
                     }}>
