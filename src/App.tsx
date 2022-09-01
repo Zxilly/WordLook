@@ -1,6 +1,6 @@
 // noinspection JSIgnoredPromiseFromCall
 
-import React, {createRef, useCallback, useEffect, useRef, useState} from 'react';
+import React, { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
 import {
     Button,
@@ -16,9 +16,9 @@ import {
     TextField,
     ThemeProvider
 } from "@mui/material";
-import {BBDC_ENDPOINT, KV_ENDPOINT, TARGET, TOKEN} from "./config";
-import {useInterval, useLocalStorage, useToggle} from "react-use";
-import {getDate, isReview} from "./utils";
+import { BBDC_ENDPOINT, KV_ENDPOINT, TARGET, TOKEN } from "./config";
+import { useInterval, useLocalStorage, useToggle } from "react-use";
+import { getDate, isReview } from "./utils";
 import ParticlesBg from 'particles-bg';
 
 enum State {
@@ -29,7 +29,7 @@ enum State {
 
 type strDict = { [key: string]: string };
 
-const {palette} = createTheme();
+const { palette } = createTheme();
 const theme = createTheme(
     {
         palette: {
@@ -235,7 +235,8 @@ function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <Dialog open={userIDDialogFlag} onClose={userIDInputClose}
+            <Dialog open={userIDDialogFlag}
+                keepMounted
             >
                 <DialogTitle>用户 ID 不可用</DialogTitle>
                 <DialogContent>
@@ -260,7 +261,7 @@ function App() {
                 </DialogActions>
             </Dialog>
             <Dialog open={reviewTargetDialogFlag}
-                    onClose={handleSetReviewTarget}
+                onClose={handleSetReviewTarget}
             >
                 <DialogTitle>需复习单词数</DialogTitle>
                 <DialogContent>
@@ -292,13 +293,13 @@ function App() {
                 onClose={snackbarClose}
                 message="不是有效的数字"
             />
-            <CssBaseline/>
-            <ParticlesBg type="cobweb" color="#b3dbf1" bg={true}/>
+            <CssBaseline />
+            <ParticlesBg type="cobweb" color="#b3dbf1" bg={true} />
             {!(initFlag && userID) ? <h1 className="App" style={{
-                    margin: 0,
-                }}>Loading...</h1> :
+                margin: 0,
+            }}>Loading...</h1> :
                 <div className="App"
-                     id="app"
+                    id="app"
                 >
                     <div
                         style={{
@@ -310,7 +311,7 @@ function App() {
                             borderRadius: "10px",
                             backgroundColor: running ? "#0288d1" : "#808080",
                             opacity: 0.5,
-                        }}/>
+                        }} />
                     <div style={{
                         position: "absolute",
                         minHeight: "100vh",
@@ -338,7 +339,7 @@ function App() {
                                 variant="determinate"
                                 value={100}
                                 color={"bg"}
-                                size={"20rem"}/>
+                                size={"20rem"} />
                         </div>
                         <div
                             className={"middle"}
@@ -350,7 +351,7 @@ function App() {
                                 thickness={2.4}
                                 value={progress}
                                 color={progressColor}
-                                size={"20rem"}/>
+                                size={"20rem"} />
                         </div>
                         <div
                             className={"middle"}
